@@ -1,6 +1,7 @@
 # utils/helpers.py
 
 import os
+import re
 from .logger import logger
 
 def create_directory(path):
@@ -22,3 +23,7 @@ def parse_views(view_str):
         return int(float(view_str.replace('K', '')) * 1_000)
     else:
         return int(view_str)
+
+def sanitize_filename(name):
+    """Remove invalid characters from a string to make it a valid filename."""
+    return re.sub(r'[\\/*?:"<>|]',"", name)

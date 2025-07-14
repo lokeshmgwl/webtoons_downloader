@@ -7,7 +7,7 @@ from tqdm import tqdm
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from utils.logger import logger
-from utils.helpers import create_directory
+from utils.helpers import create_directory, sanitize_filename
 from utils.config import OUTPUT_DIR
 
 def create_session():
@@ -46,7 +46,8 @@ def download_image(args):
 
 def download_chapter(manga_title, episode_number, image_urls, num_threads=10):
     """Download all images for a single chapter using threading."""
-    manga_dir = os.path.join(OUTPUT_DIR, manga_title)
+    safe_manga_title = sanitize_filename(manga_title)
+    manga_dir = os.path.join(OUTPUT_DIR, safe_manga_title)
     chapter_dir = os.path.join(manga_dir, f"Episode {episode_number}")
     create_directory(chapter_dir)
     
