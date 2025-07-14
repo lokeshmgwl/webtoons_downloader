@@ -6,7 +6,7 @@ This document provides instructions on how to use the graphical user interface (
 
 The GUI provides a user-friendly interface to search for, select, and download your favorite webtoons.
 
-![GUI Screenshot](gui/screenshot.png)
+![GUI Screenshot](gui/screenshot.PNG)
 
 ## How to Use
 
