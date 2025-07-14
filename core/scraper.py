@@ -29,13 +29,15 @@ def search_manga(query, lang='en'):
                 title_element = item.find("strong", class_="title")
                 author_element = item.find("div", class_="author")
                 views_element = item.find("div", class_="view_count")
-                
-                if title_element and link_element and author_element and views_element:
+                img_element = item.find("img")
+
+                if title_element and link_element and author_element and views_element and img_element:
                     title = title_element.get_text(strip=True)
                     url = link_element["href"]
                     author = author_element.get_text(strip=True)
                     views = views_element.get_text(strip=True).split(' ')[0]
-                    results.append({"title": title, "author": author, "views": views, "url": url})
+                    cover_url = img_element["src"]
+                    results.append({"title": title, "author": author, "views": views, "url": url, "cover_url": cover_url})
             
             if not new_results_found:
                 logger.info(f"No more search results found for '{query}' on page {page}.")

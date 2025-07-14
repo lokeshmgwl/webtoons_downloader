@@ -2,6 +2,7 @@
 
 from cli.argument_parser import setup_parser
 from cli.interactive_menu import app as interactive_app
+from gui.main import run_gui
 from core.scraper import search_manga, scrape_episodes, scrape_chapter_images
 from core.downloader import download_chapter
 from core.converter import convert_to_pdf, convert_to_cbz
@@ -48,6 +49,10 @@ def main():
         if '--interactive' in sys.argv:
             sys.argv.remove('--interactive')
         interactive_app()
+        return
+    
+    if '--gui' in sys.argv:
+        run_gui()
         return
 
     parser = setup_parser()

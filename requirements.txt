@@ -4,3 +4,4 @@ Pillow
 rich
 typer
 tqdm
+PyQt6
