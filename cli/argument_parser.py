@@ -11,6 +11,7 @@ def setup_parser():
     
     # Search functionality
     parser.add_argument("--search", type=str, help="Search for a manga by keyword.")
+    parser.add_argument("--lang", type=str, default="en", help="Language of the webtoon (e.g., en, id). Default is 'en'.")
     
     # URL functionality
     parser.add_argument("--url", type=str, help="Scrape and list episodes for a given manga URL.")

@@ -1,8 +1,9 @@
 # utils/config.py
 
 # Base URLs
-BASE_URL = "https://www.webtoons.com"
-SEARCH_URL = "https://www.webtoons.com/en/search/originals?keyword={query}&page={page}"
+BASE_URL = "https://www.webtoons.com/{lang}"
+SEARCH_URL = "https://www.webtoons.com/{lang}/search/originals?keyword={query}&page={page}"
+LANGUAGE = "en"
 
 # Output directory
 OUTPUT_DIR = "output"

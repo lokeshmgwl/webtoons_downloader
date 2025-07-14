@@ -36,6 +36,10 @@ def get_manga_url():
     """Prompt the user for a manga URL."""
     return typer.prompt("\nEnter the URL of the webtoon")
 
+def get_language_choice():
+    """Prompt the user for the language."""
+    return typer.prompt("\nEnter the language (e.g., en, id)", default="en")
+
 def get_format_choice():
     """Prompt the user to choose the output format."""
     console.print("\n[bold green]Output Format:[/bold green]")
@@ -161,15 +165,18 @@ def main():
     selected_manga = None
 
     if initial_choice == "1":
+        lang = get_language_choice()
         query = get_search_query()
-        search_results = search_manga(query)
+        search_results = search_manga(query, lang)
         selected_manga = select_manga_from_results(search_results)
     elif initial_choice == "2":
         url = get_manga_url()
+        lang_match = re.search(r'webtoons.com/([a-z]{2,3})/', url)
+        lang = lang_match.group(1) if lang_match else 'en'
         # We need to get the title from the URL for display purposes
         # This is a simplified way to get a title. A more robust solution
         # might involve scraping the page for the actual title.
-        title_match = re.search(r'/en/([^/]+)/([^/]+)/', url)
+        title_match = re.search(rf'/{lang}/([^/]+)/([^/]+)/', url)
         title = title_match.group(2).replace('-', ' ').title() if title_match else "Unknown Manga"
         selected_manga = {'url': url, 'title': title}
 
@@ -177,7 +184,7 @@ def main():
     if selected_manga:
         console.print(f"\nYou selected: [bold cyan]{selected_manga['title']}[/bold cyan]")
         
-        episodes = scrape_episodes(selected_manga['url'])
+        episodes = scrape_episodes(selected_manga['url'], lang)
         if not episodes:
             console.print("Could not retrieve episode list.", style="bold red")
             return

@@ -5,12 +5,12 @@ from bs4 import BeautifulSoup
 from utils.config import SEARCH_URL
 from utils.logger import logger
 
-def search_manga(query):
+def search_manga(query, lang='en'):
     """Search for a manga on Webtoons across all result pages."""
     results = []
     page = 1
     while True:
-        search_url = SEARCH_URL.format(query=query, page=page)
+        search_url = SEARCH_URL.format(lang=lang, query=query, page=page)
         try:
             response = requests.get(search_url)
             response.raise_for_status()
@@ -51,7 +51,7 @@ def search_manga(query):
     logger.info(f"Found a total of {len(results)} results for '{query}'.")
     return results
 
-def scrape_episodes(manga_url):
+def scrape_episodes(manga_url, lang='en'):
     """Scrape all episodes from a manga series page using the brute-force method."""
     episodes = []
     scraped_episode_numbers = set()

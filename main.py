@@ -56,7 +56,7 @@ def main():
 
     if args.search:
         logger.info(f"Searching for: {args.search}")
-        results = search_manga(args.search)
+        results = search_manga(args.search, args.lang)
         if results:
             table = Table(
                 show_header=True,
@@ -92,14 +92,14 @@ def main():
     
     elif args.url and args.download:
         logger.info(f"Starting download process for: {args.url}")
-        episodes = scrape_episodes(args.url)
+        episodes = scrape_episodes(args.url, args.lang)
         
         if not episodes:
             logger.warning("No episodes found to download.")
             return
 
         # Extract manga title from URL for directory naming
-        manga_title_match = re.search(r'/en/([^/]+)/([^/]+)/', args.url)
+        manga_title_match = re.search(rf'/{args.lang}/([^/]+)/([^/]+)/', args.url)
         manga_title = manga_title_match.group(2).replace('-', ' ').title() if manga_title_match else "Unknown Manga"
 
         episodes_to_download = []
@@ -121,7 +121,7 @@ def main():
 
     elif args.url:
         logger.info(f"Scraping episodes for: {args.url}")
-        episodes = scrape_episodes(args.url)
+        episodes = scrape_episodes(args.url, args.lang)
         if episodes:
             for episode in episodes:
                 print(f"Episode {episode['number']}: {episode['title']}")
