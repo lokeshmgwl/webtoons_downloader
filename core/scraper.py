@@ -46,6 +46,9 @@ def search_manga(query, lang='en'):
             logger.info(f"Found {len(results)} results so far for '{query}' after searching page {page}.")
             page += 1
 
+        except requests.exceptions.ConnectionError as e:
+            logger.error(f"Connection error during search on page {page}: {e}")
+            break
         except requests.exceptions.RequestException as e:
             logger.error(f"Error during search request on page {page}: {e}")
             break
@@ -132,3 +135,29 @@ def scrape_chapter_images(episode_url):
     except requests.exceptions.RequestException as e:
         logger.error(f"Error scraping chapter images from {episode_url}: {e}")
         return []
+
+def get_manga_title(manga_url, lang='en'):
+    """Scrape the title of a manga from its main page."""
+    try:
+        headers = {
+            'Accept-Language': lang
+        }
+        response = requests.get(manga_url, headers=headers)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, "html.parser")
+        
+        title_element = soup.find("h1", class_="subj")
+        if title_element:
+            return title_element.get_text(strip=True)
+        
+        # Fallback for different page structures
+        title_element = soup.find("p", class_="subj")
+        if title_element:
+            return title_element.get_text(strip=True)
+            
+        logger.warning(f"Could not find title element in {manga_url}")
+        return None
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error scraping manga title from {manga_url}: {e}")
+        return None

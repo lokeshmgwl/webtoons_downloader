@@ -7,15 +7,26 @@ import requests
 class SearchBar(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.layout = QHBoxLayout(self)
-        
+        self.layout = QVBoxLayout(self)
+
+        search_layout = QHBoxLayout()
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Search for a webtoon...")
-        
         self.search_button = QPushButton("Search")
-        
-        self.layout.addWidget(self.search_input)
-        self.layout.addWidget(self.search_button)
+        search_layout.addWidget(self.search_input)
+        search_layout.addWidget(self.search_button)
+
+        url_layout = QHBoxLayout()
+        self.url_input = QLineEdit()
+        self.url_input.setPlaceholderText("Or enter a direct manga URL...")
+        self.lang_input = QLineEdit()
+        self.lang_input.setPlaceholderText("Lang (e.g., en)")
+        self.lang_input.setFixedWidth(80)
+        url_layout.addWidget(self.url_input)
+        url_layout.addWidget(self.lang_input)
+
+        self.layout.addLayout(search_layout)
+        self.layout.addLayout(url_layout)
 
 class ResultsDisplay(QListWidget):
     def __init__(self, parent=None):
@@ -82,7 +93,7 @@ class OptionsPanel(QWidget):
         self.layout = QHBoxLayout(self)
         
         self.format_selector = QComboBox()
-        self.format_selector.addItems(["PDF", "CBZ"])
+        self.format_selector.addItems(["PDF", "CBZ", "None"])
         
         self.cleanup_checkbox = QCheckBox("Delete images after conversion")
         

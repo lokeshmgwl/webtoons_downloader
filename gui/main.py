@@ -1,10 +1,10 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton
 from PyQt6.QtGui import QPixmap, QPalette, QBrush
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QThreadPool, QRunnable, pyqtSlot, QObject
 from gui.widgets import (SearchBar, ResultsDisplay, ChapterSelector,
                          OptionsPanel, StatusPanel)
-from core.scraper import search_manga, scrape_episodes, scrape_chapter_images
+from core.scraper import search_manga, scrape_episodes, scrape_chapter_images, get_manga_title
 from core.downloader import download_chapter
 from core.converter import convert_to_pdf, convert_to_cbz
 from core.cleaner import clean_chapter_images
@@ -12,13 +12,57 @@ from core.cleaner import clean_chapter_images
 class SearchThread(QThread):
     results_ready = pyqtSignal(list)
 
-    def __init__(self, query):
+    def __init__(self, query, lang='en'):
         super().__init__()
         self.query = query
+        self.lang = lang
 
     def run(self):
-        results = search_manga(self.query)
+        results = search_manga(self.query, self.lang)
         self.results_ready.emit(results)
+
+class WorkerSignals(QObject):
+    progress = pyqtSignal(str)
+    finished = pyqtSignal()
+    error = pyqtSignal(str)
+
+class DownloadWorker(QRunnable):
+    def __init__(self, manga_title, episode, selected_format, clean_up):
+        super().__init__()
+        self.manga_title = manga_title
+        self.episode = episode
+        self.selected_format = selected_format
+        self.clean_up = clean_up
+        self.signals = WorkerSignals()
+
+    @pyqtSlot()
+    def run(self):
+        try:
+            episode_num = self.episode['number']
+            self.signals.progress.emit(f"Downloading Episode {episode_num}")
+            image_urls = scrape_chapter_images(self.episode['url'])
+            chapter_dir = download_chapter(self.manga_title, episode_num, image_urls)
+            
+            if chapter_dir:
+                if self.selected_format == "PDF":
+                    self.signals.progress.emit(f"Converting Episode {episode_num} to PDF")
+                    output_path = f"{chapter_dir}.pdf"
+                    convert_to_pdf(chapter_dir, output_path)
+                elif self.selected_format == "CBZ":
+                    self.signals.progress.emit(f"Converting Episode {episode_num} to CBZ")
+                    output_path = f"{chapter_dir}.cbz"
+                    convert_to_cbz(chapter_dir, output_path)
+
+                if self.clean_up and self.selected_format != "None":
+                    self.signals.progress.emit(f"Cleaning up images for Episode {episode_num}")
+                    clean_chapter_images(chapter_dir)
+            else:
+                self.signals.error.emit(f"Failed to download chapter {episode_num}")
+
+        except Exception as e:
+            self.signals.error.emit(f"Error processing episode {self.episode.get('number', 'N/A')}: {e}")
+        finally:
+            self.signals.finished.emit()
 
 class DownloadThread(QThread):
     progress = pyqtSignal(int, str)
@@ -30,29 +74,35 @@ class DownloadThread(QThread):
         self.episodes = episodes
         self.selected_format = selected_format
         self.clean_up = clean_up
+        self.threadpool = QThreadPool()
+        self.threadpool.setMaxThreadCount(10)
+        self.chapters_done = 0
+        self.total_chapters = len(episodes)
 
     def run(self):
-        total_episodes = len(self.episodes)
-        for i, episode in enumerate(self.episodes):
-            self.progress.emit(int((i / total_episodes) * 100), f"Downloading Episode {episode['number']}")
-            image_urls = scrape_chapter_images(episode['url'])
-            chapter_dir = download_chapter(self.manga_title, episode['number'], image_urls)
-            
-            if self.selected_format == "PDF":
-                self.progress.emit(int(((i + 0.5) / total_episodes) * 100), f"Converting Episode {episode['number']} to PDF")
-                output_path = f"{chapter_dir}.pdf"
-                convert_to_pdf(chapter_dir, output_path)
-            elif self.selected_format == "CBZ":
-                self.progress.emit(int(((i + 0.5) / total_episodes) * 100), f"Converting Episode {episode['number']} to CBZ")
-                output_path = f"{chapter_dir}.cbz"
-                convert_to_cbz(chapter_dir, output_path)
+        self.chapters_done = 0
+        if not self.episodes:
+            self.finished.emit()
+            return
 
-            if self.clean_up:
-                self.progress.emit(int(((i + 0.9) / total_episodes) * 100), f"Cleaning up images for Episode {episode['number']}")
-                clean_chapter_images(chapter_dir)
-        
-        self.progress.emit(100, "Download complete!")
-        self.finished.emit()
+        for episode in self.episodes:
+            worker = DownloadWorker(
+                self.manga_title,
+                episode,
+                self.selected_format,
+                self.clean_up,
+            )
+            worker.signals.progress.connect(lambda msg: self.progress.emit(-1, msg))
+            worker.signals.error.connect(lambda msg: self.progress.emit(-1, msg))
+            worker.signals.finished.connect(self.on_worker_finished)
+            self.threadpool.start(worker)
+
+    def on_worker_finished(self):
+        self.chapters_done += 1
+        progress_val = int((self.chapters_done / self.total_chapters) * 100)
+        self.progress.emit(progress_val, f"Completed {self.chapters_done}/{self.total_chapters} chapters.")
+        if self.chapters_done == self.total_chapters:
+            self.finished.emit()
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -106,8 +156,9 @@ class MainWindow(QMainWindow):
 
     def perform_search(self):
         query = self.search_bar.search_input.text()
+        lang = self.search_bar.lang_input.text() or 'en'
         if query:
-            self.search_thread = SearchThread(query)
+            self.search_thread = SearchThread(query, lang)
             self.search_thread.results_ready.connect(self.display_search_results)
             self.search_thread.start()
 
@@ -126,13 +177,24 @@ class MainWindow(QMainWindow):
         self.selected_manga_title = self.manga_results[selected_index]['title']
 
     def perform_download(self):
-        if not self.selected_manga_url:
-            self.status_panel.log_display.append("Please select a manga first.")
+        url = self.search_bar.url_input.text()
+        lang = self.search_bar.lang_input.text() or 'en'
+        
+        manga_title = None
+        
+        if url:
+            manga_title = get_manga_title(url, lang)
+            if not manga_title:
+                self.status_panel.log_display.append(f"Could not retrieve title from URL: {url}")
+                return
+            self.selected_manga_url = url
+            self.selected_manga_title = manga_title
+        elif not self.selected_manga_url:
+            self.status_panel.log_display.append("Please select a manga or enter a URL first.")
             return
 
-        episodes = scrape_episodes(self.selected_manga_url)
+        episodes = scrape_episodes(self.selected_manga_url, lang)
         
-        # Logic to select episodes based on user input
         selected_episodes = self.get_selected_episodes(episodes)
         if not selected_episodes:
             self.status_panel.log_display.append("No valid episodes selected.")
@@ -147,7 +209,8 @@ class MainWindow(QMainWindow):
         self.download_thread.start()
 
     def update_progress(self, value, message):
-        self.status_panel.progress_bar.setValue(value)
+        if value != -1:
+            self.status_panel.progress_bar.setValue(value)
         self.status_panel.log_display.append(message)
 
     def on_download_finished(self):
