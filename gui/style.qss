@@ -1,0 +1,118 @@
+/* General Window Styling */
+QMainWindow {
+    background-color: #1a1a1a; /* Fallback color */
+}
+
+/* Glassmorphic Panel Effect */
+QWidget, QListWidget {
+    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-family: "Segoe UI", "Raleway", "Roboto Mono", sans-serif;
+}
+
+/* Labels */
+QLabel {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: transparent;
+    border: none;
+}
+
+/* LineEdits */
+QLineEdit {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid #ff6f00; /* Eclipse orange */
+    border-radius: 5px;
+    padding: 5px;
+    color: #ffffff;
+}
+
+QLineEdit:focus {
+    border: 2px solid #ff8c00;
+}
+
+/* Buttons */
+QPushButton {
+    background-color: #ff6f00; /* Eclipse orange */
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    font-weight: bold;
+}
+
+QPushButton:hover {
+    background-color: #ff8c00;
+}
+
+QPushButton:pressed {
+    background-color: #e65c00;
+}
+
+/* ComboBox */
+QComboBox {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid #ff6f00;
+    border-radius: 5px;
+    padding: 5px;
+    color: #ffffff;
+}
+
+QComboBox::drop-down {
+    border: none;
+}
+
+/* CheckBox */
+QCheckBox {
+    color: #ffffff;
+}
+
+/* ProgressBar */
+QProgressBar {
+    border: 1px solid #ff6f00;
+    border-radius: 5px;
+    text-align: center;
+    color: #ffffff;
+}
+
+QProgressBar::chunk {
+    background-color: #ff6f00;
+    border-radius: 5px;
+}
+
+/* TextEdit */
+QTextEdit {
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #ff6f00;
+    color: #ffffff;
+}
+
+/* ScrollBars */
+QScrollBar:vertical {
+    border: none;
+    background: rgba(0, 0, 0, 0.5);
+    width: 10px;
+    margin: 0px 0px 0px 0px;
+}
+
+QScrollBar::handle:vertical {
+    background: #ff6f00;
+    min-height: 20px;
+    border-radius: 5px;
+}
+
+QScrollBar:horizontal {
+    border: none;
+    background: rgba(0, 0, 0, 0.5);
+    height: 10px;
+    margin: 0px 0px 0px 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background: #ff6f00;
+    min-width: 20px;
+    border-radius: 5px;
+}
