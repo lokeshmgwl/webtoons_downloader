@@ -7,6 +7,7 @@ def setup_parser():
     parser = argparse.ArgumentParser(description="Webtoons Manga Downloader")
 
     # Mode selection
+    parser.add_argument("--gui", action="store_true", help="Run the graphical user interface.")
     parser.add_argument("-i", "--interactive", action="store_true", help="Run in interactive mode.")
     
     # Search functionality
