@@ -1,7 +1,8 @@
-from PyQt6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLineEdit, QPushButton, 
-                             QListWidget, QListWidgetItem, QLabel, QComboBox, QCheckBox, 
+from PyQt6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLineEdit, QPushButton,
+                             QListWidget, QListWidgetItem, QLabel, QComboBox, QCheckBox,
                              QProgressBar, QTextEdit)
 from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtCore import QRunnable, pyqtSlot, QObject, pyqtSignal, QThreadPool
 import requests
 
 class SearchBar(QWidget):
@@ -28,36 +29,48 @@ class SearchBar(QWidget):
         self.layout.addLayout(search_layout)
         self.layout.addLayout(url_layout)
 
+class ImageFetcherSignals(QObject):
+    finished = pyqtSignal(QPixmap)
+    error = pyqtSignal(str)
+
+class ImageFetcher(QRunnable):
+    def __init__(self, url):
+        super().__init__()
+        self.url = url
+        self.signals = ImageFetcherSignals()
+
+    @pyqtSlot()
+    def run(self):
+        try:
+            headers = {
+                'Referer': 'https://www.webtoons.com/',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+            }
+            response = requests.get(self.url, stream=True, headers=headers)
+            response.raise_for_status()
+            pixmap = QPixmap()
+            pixmap.loadFromData(response.content)
+            self.signals.finished.emit(pixmap)
+        except requests.exceptions.RequestException as e:
+            self.signals.error.emit(str(e))
+
 class ResultsDisplay(QListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setFlow(QListWidget.Flow.LeftToRight)
         self.setWrapping(True)
         self.setSpacing(10)
+        self.threadpool = QThreadPool()
+        self.threadpool.setMaxThreadCount(10) # Limit concurrent image downloads
 
     def add_manga_item(self, title, cover_url):
         item = QListWidgetItem()
         widget = QWidget()
         layout = QVBoxLayout(widget)
         
-        cover_label = QLabel()
-        pixmap = QPixmap()
+        cover_label = QLabel("Loading...")
+        cover_label.setFixedSize(150, 200) # Give it a fixed size
         
-        try:
-            headers = {
-                'Referer': 'https://www.webtoons.com/',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-            }
-            response = requests.get(cover_url, stream=True, headers=headers)
-            response.raise_for_status()
-            pixmap.loadFromData(response.content)
-            cover_label.setPixmap(pixmap.scaledToWidth(150))
-        except requests.exceptions.RequestException as e:
-            print(f"Failed to load cover image: {e}")
-            # Optionally set a placeholder image
-            pixmap.load('gui/placeholder.png') # Make sure you have a placeholder image
-            cover_label.setPixmap(pixmap.scaledToWidth(150))
-
         title_label = QLabel(title)
         title_label.setWordWrap(True)
         
@@ -67,6 +80,23 @@ class ResultsDisplay(QListWidget):
         item.setSizeHint(widget.sizeHint())
         self.addItem(item)
         self.setItemWidget(item, widget)
+
+        # Asynchronously fetch the image
+        fetcher = ImageFetcher(cover_url)
+        fetcher.signals.finished.connect(lambda pixmap: self.on_image_loaded(cover_label, pixmap))
+        fetcher.signals.error.connect(lambda error: self.on_image_error(cover_label, error))
+        self.threadpool.start(fetcher)
+
+    def on_image_loaded(self, label, pixmap):
+        label.setPixmap(pixmap.scaledToWidth(150))
+
+    def on_image_error(self, label, error_msg):
+        print(f"Failed to load cover image: {error_msg}")
+        pixmap = QPixmap('gui/placeholder.png') # Fallback placeholder
+        if not pixmap.isNull():
+            label.setPixmap(pixmap.scaledToWidth(150))
+        else:
+            label.setText("Error")
 
 class ChapterSelector(QWidget):
     def __init__(self, parent=None):
